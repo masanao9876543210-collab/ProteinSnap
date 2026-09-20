@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#19a974">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>ProteinSnap v0.6</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="brand">ProteinSnap</div>
+      <div class="subtitle">食べたら、次に何を食べる？</div><div class="version">v0.7</div>
+    </div>
+    <button class="icon-btn" id="settingsBtn" aria-label="設定">⚙️</button>
+  </header>
+
+  <main>
+    <section id="homePage" class="page active">
+      <div class="hero-card">
+        <div class="hero-label">今日のたんぱく質</div>
+        <div class="hero-number"><span id="proteinTotal">0</span><small> / <span id="proteinGoal">120</span>g</small></div>
+        <div class="progress"><div id="proteinBar"></div></div>
+        <div class="hero-remain">あと <b id="proteinRemain">120</b>g</div>
+      </div>
+
+      <div class="quick-grid">
+        <button class="primary-btn" data-go="recordPage">📷 食事を記録</button>
+        <button class="secondary-btn" data-go="recommendPage">🍽 次に何を食べる？</button>
+      </div>
+
+      <div class="section-head"><h2>今日の食事</h2><span id="mealCount">0食</span></div>
+      <div id="todayMeals" class="stack"></div>
+
+      <div class="insight-card">
+        <div class="insight-title">💡 ProteinSnap</div>
+        <div id="homeInsight">まず食事を記録すると、残りのたんぱく質に合わせて次の食事を提案します。</div>
+      </div>
+    </section>
+
+    <section id="recordPage" class="page">
+      <div class="page-title">食事を記録</div>
+      <div class="photo-box">
+        <input id="photoInput" type="file" accept="image/*" capture="environment">
+        <div id="photoPlaceholder" class="photo-placeholder">
+          <div class="camera">📷</div>
+          <b>食事の写真を選択</b>
+          <span>撮影または写真ライブラリから選択</span>
+        </div>
+        <img id="photoPreview" class="photo-preview hidden" alt="食事写真">
+      </div>
+      <button id="analyzeBtn" class="ai-btn" disabled>✨ AIで食事を分析する</button>
+      <div id="aiStatus" class="ai-status">写真を選ぶと分析できます。現在はローカルデモ＋AI接続準備済み。</div>
+
+      <div id="analysisCard" class="analysis-card hidden">
+        <div class="analysis-head">
+          <div><span class="ai-badge">AI分析</span><h3 id="analysisTitle">分析結果</h3></div>
+          <span id="confidence" class="confidence">推定</span>
+        </div>
+        <div id="analysisItems" class="analysis-items"></div>
+        <div class="analysis-grid">
+          <label>たんぱく質(g)<input id="proteinInput" type="number" min="0" step="0.1"></label>
+          <label>カロリー(kcal)<input id="calorieInput" type="number" min="0" step="1"></label>
+          <label>脂質(g)<input id="fatInput" type="number" min="0" step="0.1" value="0"></label>
+          <label>炭水化物(g)<input id="carbsInput" type="number" min="0" step="0.1" value="0"></label>
+        </div>
+        <label class="full-label">メモ<input id="memoInput" type="text" placeholder="例：ご飯は半分"></label>
+        <button id="saveBtn" class="primary-btn wide">この内容で記録する</button>
+      </div>
+
+      <div class="manual-card">
+        <div class="section-head"><h2>手入力</h2><span>AIを使わなくてもOK</span></div>
+        <label>料理名<input id="manualName" type="text" placeholder="例：鶏むね肉定食"></label>
+        <div class="analysis-grid">
+          <label>たんぱく質(g)<input id="manualProtein" type="number" min="0" step="0.1" value="20"></label>
+          <label>カロリー(kcal)<input id="manualCalories" type="number" min="0" step="1" value="400"></label>
+        </div>
+        <button id="manualSaveBtn" class="secondary-btn wide">手入力で記録</button>
+      </div>
+    </section>
+
+    <section id="recommendPage" class="page">
+      <div class="page-title">次に何を食べる？</div>
+      <div class="target-card">
+        <div>現在の残り</div><strong>あと <span id="recommendRemain">120</span>g</strong>
+        <small>今日の目標に近づくメニューを優先表示</small>
+      </div>
+      <div class="filters" id="filters">
+        <button class="filter active" data-filter="all">すべて</button>
+        <button class="filter" data-filter="quick">時短</button>
+        <button class="filter" data-filter="lowcal">低カロリー</button>
+        <button class="filter" data-filter="convenience">コンビニ</button>
+      </div>
+      <div id="recommendList" class="stack"></div>
+    </section>
+
+    <section id="recipePage" class="page">
+      <button class="back-btn" data-go="recommendPage">← 戻る</button>
+      <div id="recipeDetail"></div>
+    </section>
+
+    <section id="historyPage" class="page">
+      <div class="page-title">履歴</div>
+      <div id="historyList" class="stack"></div>
+      <button id="clearHistoryBtn" class="danger-btn">履歴をすべて削除</button>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-go="homePage">⌂<span>ホーム</span></button>
+    <button class="nav-item" data-go="recordPage">＋<span>記録</span></button>
+    <button class="nav-item" data-go="recommendPage">🍽<span>おすすめ</span></button>
+    <button class="nav-item" data-go="historyPage">◷<span>履歴</span></button>
+  </nav>
+</div>
+
+<dialog id="settingsDialog">
+  <form method="dialog" id="settingsForm">
+    <div class="dialog-head"><h2>設定</h2><button value="cancel" class="close-btn">×</button></div>
+    <label>体重(kg)<input id="weightInput" type="number" min="1" step="0.1"></label>
+    <label>目標タイプ
+      <select id="goalType">
+        <option value="maintain">維持</option>
+        <option value="cut">減量</option>
+        <option value="bulk">増量</option>
+      </select>
+    </label>
+    <label>たんぱく質目標(g)<input id="goalInput" type="number" min="1" step="1"></label>
+    <label>カロリー目標(kcal)<input id="calGoalInput" type="number" min="1" step="10"></label>
+    <label>AI API URL（実AIを使う場合）<input id="apiUrlInput" type="url" placeholder="https://xxxxx.workers.dev"></label>
+    <p class="hint">空欄なら現在のサイトと同じURLの /api/analyze-food を使います。別ドメインにWorkerを置いた場合だけ入力してください。</p>
+    <p class="hint">体重×係数で目安を自動計算できます。最終的には自分の目的や活動量に合わせて調整してください。</p>
+    <button id="calcGoalBtn" type="button" class="secondary-btn wide">目標を自動計算</button>
+    <button value="save" class="primary-btn wide">保存</button>
+  </form>
+</dialog>
+<script src="app.js"></script>
+</body>
+</html>
